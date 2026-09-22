@@ -542,13 +542,13 @@ Ver Cluster Port Status Owner    Data directory
 
 On the ***Standby***, run:
 
-```bash id="r1t6gr"
+```bash
 pg_isready -h IP_REDE_PRIMARY -p 5432
 ```
 
 Expected output:
 
-```text id="dh0yrn"
+```text
 IP_REDE_PRIMARY:5432 - accepting connections
 ```
 
@@ -558,19 +558,19 @@ IP_REDE_PRIMARY:5432 - accepting connections
 
 On the ***Standby***, run:
 
-```bash id="c11csp"
+```bash
 psql "host=IP_REDE_PRIMARY port=5432 user=lnd_replicator replication=true" -W -c "IDENTIFY_SYSTEM;"
 ```
 
 The `-W` parameter will cause `psql` to request the password interactively, preventing it from being included directly in the command and stored in the terminal history. Enter the password defined for the `lnd_replicator` user:
 
-```text id="c0l92m"
+```text
 Password:
 ```
 
 Expected output:
 
-```text id="xj06qr"
+```text
       systemid       | timeline |  xlogpos  | dbname 
 ---------------------+----------+-----------+--------
  1234567890123456789 |        1 | 0/1234567 | 
@@ -585,20 +585,20 @@ Expected output:
 
 On the ***Standby***, run:
 
-```bash id="f53erq"
+```bash
 pg_lsclusters
 ```
 
 Expected output:
 
-```text id="x2a6gj"
+```text
 Ver Cluster Port Status Owner    Data directory              Log file
 18  main    5432 online postgres /var/lib/postgresql/18/main /var/log/postgresql/postgresql-18-main.log
 ```
 
 Check which databases currently exist in this cluster:
 
-```bash id="cmuhpy"
+```bash
 sudo -u postgres psql -X -P pager=off -c "
 SELECT datname
 FROM pg_database
@@ -608,7 +608,7 @@ ORDER BY datname;
 
 On a new, unused installation, the expected output is:
 
-```text id="z4jx6i"
+```text
   datname  
 -----------
  postgres
@@ -623,7 +623,7 @@ On a new, unused installation, the expected output is:
 >
 > For example, a server may simultaneously maintain:
 >
-> ```text id="pftl7c"
+> ```text
 > 18  main        5432  online  postgres  /var/lib/postgresql/18/main
 > 18  lndstandby  5433  online  postgres  /var/lib/postgresql/18/lndstandby
 > ```
@@ -644,13 +644,13 @@ Before creating another cluster, we need to determine which ports are already in
 
 On the ***Standby***, run:
 
-```bash id="cvr0ec"
+```bash
 sudo ss -ltnp | grep postgres
 ```
 
 Expected output:
 
-```text id="p12qxy"
+```text
 LISTEN 0  200  127.0.0.1:5432  0.0.0.0:*  users:(("postgres",...))
 ```
 
@@ -662,13 +662,13 @@ In this example, the existing PostgreSQL cluster is using port `5432`. Before cr
 
 On the ***Standby***, run:
 
-```bash id="bsfj1w"
+```bash
 sudo pg_createcluster 18 lndstandby --port=5433 --start
 ```
 
 Expected output:
 
-```text id="fv8gks"
+```text
 ...
 
 Ver Cluster     Port Status Owner    Data directory                     Log file
@@ -677,7 +677,7 @@ Ver Cluster     Port Status Owner    Data directory                     Log file
 
 On the ***Standby***, run the following command to confirm that the cluster was created:
 
-```bash id="v3a4nv"
+```bash
 pg_lsclusters
 ```
 
@@ -685,7 +685,7 @@ In this scenario, the `18/main` cluster remains operational on port `5432`, whil
 
 Expected output:
 
-```text id="wyjml7"
+```text
 Ver Cluster    Port Status Owner    Data directory                    Log file
 18  lndstandby 5433 online postgres /var/lib/postgresql/18/lndstandby /var/log/postgresql/postgresql-18-lndstandby.log
 18  main       5432 online postgres /var/lib/postgresql/18/main       /var/log/postgresql/postgresql-18-main.log
@@ -705,19 +705,19 @@ Ver Cluster    Port Status Owner    Data directory                    Log file
 
 On the ***Standby***, run:
 
-```bash id="fknve2"
+```bash
 sudo pg_ctlcluster 18 main stop
 ```
 
 Confirm:
 
-```bash id="2i5q3a"
+```bash
 pg_lsclusters
 ```
 
 Expected output:
 
-```text id="8z1lsn"
+```text
 Ver Cluster Port Status Owner    Data directory              Log file
 18  main    5432 down   postgres /var/lib/postgresql/18/main /var/log/postgresql/postgresql-18-main.log
 ```
@@ -730,19 +730,19 @@ Ver Cluster Port Status Owner    Data directory              Log file
 
 On the ***Standby***, run:
 
-```bash id="13fdxw"
+```bash
 sudo find /var/lib/postgresql/18/main -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
 ```
 
 On the ***Standby***, run the following command to verify:
 
-```bash id="jgfnpb"
+```bash
 sudo ls -la /var/lib/postgresql/18/main
 ```
 
 Expected output:
 
-```text id="2r02q4"
+```text
 total 8
 drwx------ 2 postgres postgres ... .
 drwxr-xr-x 3 postgres postgres ... ..
@@ -756,13 +756,13 @@ drwxr-xr-x 3 postgres postgres ... ..
 
 On the ***Standby***, run:
 
-```bash id="a81l3u"
+```bash
 sudo -u postgres nano /var/lib/postgresql/.pgpass
 ```
 
 Add a single line:
 
-```conf id="fzxy7s"
+```conf
 IP_REDE_PRIMARY:5432:*:lnd_replicator:SENHA_DO_USUARIO
 ```
 
@@ -772,20 +772,20 @@ Save the file (Ctrl+O and Enter) and exit Nano (Ctrl+X).
 
 The `.pgpass` file contains the password in plain text. It must belong to the `postgres` user and have `600` permissions. PostgreSQL ignores the file if its permissions allow access by other users. On the ***Standby***, run:
 
-```bash id="h31g8r"
+```bash
 sudo chown postgres:postgres /var/lib/postgresql/.pgpass
 sudo chmod 600 /var/lib/postgresql/.pgpass
 ```
 
 On the ***Standby***, run the following command to verify:
 
-```bash id="23h3ri"
+```bash
 sudo ls -l /var/lib/postgresql/.pgpass
 ```
 
 Expected output:
 
-```text id="7f34b8"
+```text
 -rw------- 1 postgres postgres ... /var/lib/postgresql/.pgpass
 ```
 
@@ -795,7 +795,7 @@ Expected output:
 
 On the ***Standby***, run:
 
-```bash id="r25izg"
+```bash
 sudo -u postgres psql "host=IP_REDE_PRIMARY port=5432 user=lnd_replicator replication=true passfile=/var/lib/postgresql/.pgpass" -c "IDENTIFY_SYSTEM;"
 ```
 
@@ -809,7 +809,7 @@ The command should execute without requesting a password. This confirms that the
 
 On the ***Standby***, run:
 
-```bash id="lyl4qw"
+```bash
 sudo -u postgres pg_basebackup \
   -D /var/lib/postgresql/18/main \
   -d "host=IP_REDE_PRIMARY port=5432 user=lnd_replicator application_name=standby1 passfile=/var/lib/postgresql/.pgpass" \
@@ -821,7 +821,7 @@ sudo -u postgres pg_basebackup \
 
 Expected output:
 
-```text id="08vql7"
+```text
 waiting for checkpoint
 ...
 XXXXXX/XXXXXX kB (100%), 1/1 tablespace
@@ -837,19 +837,19 @@ XXXXXX/XXXXXX kB (100%), 1/1 tablespace
 
 On the ***Standby***, run:
 
-```bash id="zj91h8"
+```bash
 sudo pg_ctlcluster 18 main start
 ```
 
 Then confirm the status:
 
-```bash id="x0fnyd"
+```bash
 pg_lsclusters
 ```
 
 Expected output:
 
-```text id="3iub8p"
+```text
 Ver Cluster Port Status Owner    Data directory              Log file
 18  main    5432 online postgres /var/lib/postgresql/18/main /var/log/postgresql/postgresql-18-main.log
 ```
@@ -860,7 +860,7 @@ Ver Cluster Port Status Owner    Data directory              Log file
 
 On the ***Standby***, run:
 
-```bash id="t3vph6"
+```bash
 sudo -u postgres psql -X -P pager=off -c "
 SELECT pg_is_in_recovery();
 "
@@ -868,7 +868,7 @@ SELECT pg_is_in_recovery();
 
 Expected output:
 
-```text id="n0cp41"
+```text
  pg_is_in_recovery
 -------------------
  t
@@ -877,7 +877,7 @@ Expected output:
 
 Still on the ***Standby***, run:
 
-```bash id="tnlqms"
+```bash
 sudo -u postgres psql -X -P pager=off -c "
 SELECT status,
        sender_host,
@@ -892,7 +892,7 @@ FROM pg_stat_wal_receiver;
 
 Expected output:
 
-```text id="zyslx5"
+```text
  status    | sender_host  | sender_port |      slot_name       | written_lsn | flushed_lsn | latest_end_lsn
 -----------+--------------+-------------+----------------------+-------------+-------------+---------------
  streaming | IP_PRIMARY   |        5432 | lnd_pg_standby_01    | ...         | ...         | ...
@@ -904,7 +904,7 @@ Expected output:
 
 On the ***Primary***, run:
 
-```bash id="u6p2g6"
+```bash
 sudo -u postgres psql -X -P pager=off -c "
 SELECT application_name,
        client_addr,
@@ -923,7 +923,7 @@ FROM pg_stat_replication;
 
 Expected output:
 
-```text id="2fcy5a"
+```text
  application_name | client_addr     |   state   | sync_state | sent_lsn | write_lsn | flush_lsn | replay_lsn | ...
 ------------------+-----------------+-----------+------------+----------+-----------+-----------+------------+----
  standby1         | IP_REDE_STANDBY | streaming | async      | ...      | ...       | ...       | ...        | ...
@@ -939,13 +939,13 @@ Expected output:
 
 On the ***Primary***, run:
 
-```bash id="i2l27q"
+```bash
 sudo nano /etc/postgresql/18/main/conf.d/99-lnd-replication.conf
 ```
 
 At the end of the file, add:
 
-```conf id="3ouhwd"
+```conf
 # Synchronous replication
 synchronous_standby_names = 'standby1'
 synchronous_commit = remote_apply
@@ -959,7 +959,7 @@ Save the file (Ctrl+O and Enter) and exit Nano (Ctrl+X).
 
 On the ***Primary***, run:
 
-```bash id="6wfr13"
+```bash
 sudo -u postgres psql -X -P pager=off -c "
 SELECT sourcefile,
        sourceline,
@@ -975,7 +975,7 @@ ORDER BY sourceline;
 
 In the expected output, confirm primarily:
 
-```text id="r7o7d2"
+```text
 |           name            |   setting    | applied | error
 +---------------------------+--------------+---------+-------
 | synchronous_standby_names | standby1     | t       |
@@ -988,13 +988,13 @@ In the expected output, confirm primarily:
 
 On the ***Primary***, run:
 
-```bash id="3j6pr5"
+```bash
 sudo pg_ctlcluster 18 main reload
 ```
 
 Confirm the values actually loaded. On the ***Primary***, run:
 
-```bash id="3j7j99"
+```bash
 sudo -u postgres psql -X -P pager=off -c "
 SELECT name,
        setting
@@ -1006,7 +1006,7 @@ ORDER BY name;
 
 Expected output:
 
-```text id="c61e1f"
+```text
            name            |   setting    
 ---------------------------+--------------
  synchronous_commit        | remote_apply
@@ -1020,7 +1020,7 @@ Expected output:
 
 On the ***Primary***, run:
 
-```bash id="p2c6a7"
+```bash
 sudo -u postgres psql -X -P pager=off -c "
 SELECT application_name,
        client_addr,
@@ -1039,7 +1039,7 @@ FROM pg_stat_replication;
 
 In the expected output, confirm primarily:
 
-```text id="vfb8ji"
+```text
   application_name |   state   | sync_state |
  ------------------+-----------+------------+
   standby1         | streaming | sync
