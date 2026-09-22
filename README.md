@@ -62,6 +62,16 @@ The implementation and tests documented in the first tutorial were performed usi
      - Naghust SA | BR⚡LN (02dd543868366e0bc3e498ab7c687d795a30ce0f70d2d034006b4654bbe887af8a)
      - Naghust Replication Test (026eea7a1d59689a4e40c3504cbaca131d712564436ea081db6fd81050b585f0b7)
 
+## Acknowledgements
+
+This project was inspired in part by the PostgreSQL replication work documented by **Filou (Filouman)**, operator of the **Nodelou** Lightning node.
+
+His work provided an important practical reference for using PostgreSQL physical streaming replication and synchronous replication with `remote_apply` in a Lightning node environment.
+
+The implementation documented in this repository was independently tested and adapted to the architecture described here, including its replication, contingency, and operational procedures.
+
+[Filouman's PostgreSQL Replication project →](https://github.com/Filouman/Postgresql_replication)
+
 ## Project Roadmap
 
 This repository is intended to document the architecture progressively.
