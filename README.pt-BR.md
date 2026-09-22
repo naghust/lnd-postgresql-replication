@@ -62,6 +62,16 @@ A implementação e os testes documentados no primeiro tutorial foram realizados
   - Naghust SA | BR⚡LN (02dd543868366e0bc3e498ab7c687d795a30ce0f70d2d034006b4654bbe887af8a)
   - Naghust Replication Test (026eea7a1d59689a4e40c3504cbaca131d712564436ea081db6fd81050b585f0b7)
 
+## Agradecimentos
+
+Este projeto foi inspirado, em parte, pelo trabalho sobre replicação PostgreSQL documentado por **Filou (Filouman)**, operador do node Lightning **Nodelou**.
+
+Seu trabalho forneceu uma importante referência prática para a utilização de replicação física por streaming do PostgreSQL e replicação síncrona com `remote_apply` em um ambiente de node Lightning.
+
+A implementação documentada neste repositório foi testada de forma independente e adaptada à arquitetura aqui apresentada, incluindo seus procedimentos de replicação, contingência e operação.
+
+[Projeto PostgreSQL Replication de Filouman →](https://github.com/Filouman/Postgresql_replication)
+
 ## Roadmap do Projeto
 
 Este repositório pretende documentar a arquitetura de forma progressiva.
