@@ -108,3 +108,8 @@ Antes de aplicá-los a um node Lightning em produção:
 - valide o procedimento em um ambiente de testes sempre que possível.
 
 Este projeto documenta uma arquitetura e um procedimento operacional testados, mas não substitui uma estratégia de backup e recuperação de desastres específica para cada infraestrutura.
+
+## Licença
+
+A documentação deste projeto está licenciada sob a
+[Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE).
