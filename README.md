@@ -108,3 +108,8 @@ Before applying them to a production Lightning node:
 - validate the procedure in a test environment whenever possible.
 
 This project documents a tested architecture and operational procedure, but it is not a substitute for an infrastructure-specific backup and disaster recovery strategy.
+
+## License
+
+The documentation in this project is licensed under the
+[Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE).
