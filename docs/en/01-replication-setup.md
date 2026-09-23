@@ -1175,15 +1175,32 @@ wal_retained       | 129 MB
 safe_wal_remaining | 10116 MB
 ```
 
-#### 4.4.2 — Change Disk Space for WAL Retention
+#### 4.4.2 — Increase the WAL retention limit
 
-If `safe_wal_remaining` is very close to 0, you can allocate more disk space for WAL retention. To do so, run the following command on the ***Primary***:
+If `safe_wal_remaining` is getting close to 0, you can increase the amount of WAL that the replication slot is allowed to retain on the ***Primary***. First, check the currently configured limit:
+
+```bash
+sudo -u postgres psql -X -d postgres -c "SHOW max_slot_wal_keep_size;"
+```
+
+Expected output:
+
+```text
+ max_slot_wal_keep_size
+------------------------
+ XXGB
+(1 row)
+```
+
+Then increase the retention limit:
 
 ```bash
 sudo -u postgres psql -X -d postgres -c "ALTER SYSTEM SET max_slot_wal_keep_size = '100GB';"
 ```
 
-Replace `100GB` with the value you consider appropriate based on the available disk space on the ***Standby***.
+Replace `100GB` with the desired value, taking into account the available disk space on the ***Primary***.
+
+> **Important:** this parameter does not immediately reserve the specified amount of disk space. It defines the maximum amount of WAL that the replication slot may require PostgreSQL to retain. Therefore, make sure the ***Primary*** has enough free disk space to accommodate this growth.
 
 Expected output:
 
@@ -1191,7 +1208,7 @@ Expected output:
 ALTER SYSTEM
 ```
 
-Then run:
+Then reload the configuration:
 
 ```bash
 sudo -u postgres psql -X -d postgres -c "SELECT pg_reload_conf();"
