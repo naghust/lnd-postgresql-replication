@@ -1148,6 +1148,61 @@ Confirm primarily:
 
 > **Note:** there is no need to restart PostgreSQL or LND.
 
+#### 4.4.1 — Monitor the Physical Slot Health
+
+While the ***Standby*** is unavailable, periodically check the health of the physical replication slot on the ***Primary***:
+
+```bash
+sudo -u postgres psql -X -d postgres -P pager=off -P expanded=on -c "
+SELECT
+    slot_name,
+    active AS slot_active,
+    wal_status,
+    pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)) AS wal_retained,
+    pg_size_pretty(safe_wal_size) AS safe_wal_remaining
+FROM pg_replication_slots
+WHERE slot_name = 'lnd_pg_standby_01';
+"
+```
+
+A healthy output while the Standby is unavailable should look, for example, like this:
+
+```text
+slot_name          | lnd_pg_standby_01
+slot_active        | f
+wal_status         | reserved
+wal_retained       | 129 MB
+safe_wal_remaining | 10116 MB
+```
+
+If `safe_wal_remaining` is very close to 0, you can allocate more disk space for WAL retention. To do so, run the following command on the ***Primary***:
+
+```bash
+sudo -u postgres psql -X -d postgres -c "ALTER SYSTEM SET max_slot_wal_keep_size = '100GB';"
+```
+
+Replace `100GB` with the value you consider appropriate based on the available disk space on the ***Standby***.
+
+Expected output:
+
+```text
+ALTER SYSTEM
+```
+
+Then run:
+
+```bash
+sudo -u postgres psql -X -d postgres -c "SELECT pg_reload_conf();"
+```
+
+Expected output:
+
+```text
+ pg_reload_conf
+----------------
+ t
+```
+
 ### 4.5 — Return to synchronous `remote_apply` mode after the ***Standby*** returns
 
 > **Important:** do not restore synchronous mode simply because the ***Standby*** has started responding again. First, confirm that it is connected again, in `streaming`, and sufficiently up to date relative to the ***Primary***.
