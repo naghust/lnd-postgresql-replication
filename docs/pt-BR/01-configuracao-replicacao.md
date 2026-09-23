@@ -1164,6 +1164,59 @@ Confirme principalmente:
 (2 rows)
 ```
 
+#### 4.4.1 — Acompanhar o estado da saúde do slot físico
+
+Enquanto o ***Standby*** estiver indisponível, verifique periodicamente a saúde do slot físico no ***Primary***:
+
+```bash
+sudo -u postgres psql -X -d postgres -P pager=off -P expanded=on -c "
+SELECT
+    slot_name,
+    active AS slot_active,
+    wal_status,
+    pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)) AS wal_retained,
+    pg_size_pretty(safe_wal_size) AS safe_wal_remaining
+FROM pg_replication_slots
+WHERE slot_name = 'lnd_pg_standby_01';
+"
+```
+
+Uma saída saudável durante a indisponibilidade do Standby deve apresentar, por exemplo:
+
+```text
+slot_name          | lnd_pg_standby_01
+slot_active        | f
+wal_status         | reserved
+wal_retained       | 129 MB
+safe_wal_remaining | 10116 MB
+```
+
+Se o `safe_wal_remaining` estiver muito próximo de 0, é possível disponibilizar mais espaço em disco para o WAL. Para isso, no ***Primary***, execute:
+```bash
+sudo -u postgres psql -X -d postgres -c "ALTER SYSTEM SET max_slot_wal_keep_size = '100GB';"
+```
+
+Troque o `100GB` pelo valor que achar necessário de acordo com a disponibilidade de espaço em disco no ***Standby***.
+
+Saída esperada:
+```text
+ALTER SYSTEM
+```
+
+Depois, execute:
+```bash
+sudo -u postgres psql -X -d postgres -c "SELECT pg_reload_conf();"
+```
+
+Saída esperada:
+```text
+ pg_reload_conf
+----------------
+ t
+```
+
+Agora pode voltar a executar
+
 > **Nota:** não é necessário reiniciar o PostgreSQL ou o LND.
 
 ### 4.5 — Retornar ao modo síncrono `remote_apply` após o retorno do ***Standby***
