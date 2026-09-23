@@ -1193,6 +1193,8 @@ wal_retained       | 129 MB
 safe_wal_remaining | 10116 MB
 ```
 
+#### 4.4.2 — Alterar o espaço em disco para retenção de WAL
+
 Se o `safe_wal_remaining` estiver muito próximo de 0, é possível disponibilizar mais espaço em disco para o WAL. Para isso, no ***Primary***, execute:
 ```bash
 sudo -u postgres psql -X -d postgres -c "ALTER SYSTEM SET max_slot_wal_keep_size = '100GB';"
@@ -1221,6 +1223,8 @@ Saída esperada:
 
 > **Importante:** não restaure o modo síncrono apenas porque o ***Standby*** voltou a responder. Antes, confirme que ele está novamente conectado, em `streaming` e suficientemente atualizado em relação ao ***Primary***.
 
+#### 4.5.1 — Verificar a saúde do ***Standby***
+
 Depois que o ***Standby*** estiver recuperado, no ***Primary*** execute:
 
 ```bash
@@ -1247,7 +1251,7 @@ standby1         | streaming | async
 
 Aguarde até que `sent_lsn`, `write_lsn`, `flush_lsn` e `replay_lsn` estejam próximos ou iguais antes de restabelecer a exigência síncrona.
 
-### 4.6 — Reativar o ***Standby*** síncrono
+#### 4.5.2 — Reativar o ***Standby*** síncrono
 
 No ***Primary***, abra:
 
