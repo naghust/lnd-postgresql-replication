@@ -1164,6 +1164,8 @@ Confirme principalmente:
 (2 rows)
 ```
 
+> **Nota:** não é necessário reiniciar o PostgreSQL ou o LND.
+
 #### 4.4.1 — Acompanhar o estado da saúde do slot físico
 
 Enquanto o ***Standby*** estiver indisponível, verifique periodicamente a saúde do slot físico no ***Primary***:
@@ -1214,10 +1216,6 @@ Saída esperada:
 ----------------
  t
 ```
-
-Agora pode voltar a executar
-
-> **Nota:** não é necessário reiniciar o PostgreSQL ou o LND.
 
 ### 4.5 — Retornar ao modo síncrono `remote_apply` após o retorno do ***Standby***
 
