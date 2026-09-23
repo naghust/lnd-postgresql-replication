@@ -1175,6 +1175,8 @@ wal_retained       | 129 MB
 safe_wal_remaining | 10116 MB
 ```
 
+#### 4.4.2 — Change Disk Space for WAL Retention
+
 If `safe_wal_remaining` is very close to 0, you can allocate more disk space for WAL retention. To do so, run the following command on the ***Primary***:
 
 ```bash
@@ -1207,6 +1209,8 @@ Expected output:
 
 > **Important:** do not restore synchronous mode simply because the ***Standby*** has started responding again. First, confirm that it is connected again, in `streaming`, and sufficiently up to date relative to the ***Primary***.
 
+#### 4.5.1 — Check the ***Standby*** Health
+
 After the ***Standby*** has been recovered, on the ***Primary*** run:
 ```bash
 sudo -u postgres psql -X -P pager=off -c "
@@ -1231,7 +1235,7 @@ standby1         | streaming | async
 
 Wait until `sent_lsn`, `write_lsn`, `flush_lsn`, and `replay_lsn` are close to or equal to each other before restoring the synchronous requirement.
 
-### 4.6 — Reactivate the synchronous ***Standby***
+#### 4.5.2 — Reactivate the synchronous ***Standby***
 
 On the ***Primary***, open:
 ```bash
